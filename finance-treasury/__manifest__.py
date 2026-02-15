@@ -37,7 +37,7 @@ Data Models: finance.account, finance.transaction, finance.transfer,
 finance.exchange, finance.category
     """,
     'author': 'Jonibek Yorqulov',
-    'website': 'https://github.com/jonibekyorqulov',
+    'website': 'https://github.com/jonibekodoo',
     'license': 'LGPL-3',
     'depends': [
         'base',
