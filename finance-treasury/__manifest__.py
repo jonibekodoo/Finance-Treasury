@@ -5,26 +5,39 @@
     'category': 'Accounting/Finance',
     'summary': 'Universal Treasury Management: Cash, Bank, Card, Wallet & Financial Operations',
     'description': """
-Finance Treasury Module
-=======================
-A comprehensive treasury management system that handles all financial operations
-through a single unified transaction engine.
+Finance Treasury — Universal Treasury Management
+=================================================
 
-Features:
----------
-* Manage Cash, Bank, Card, and Wallet accounts in one place
-* Universal transaction model for income and expenses
-* Account-to-account transfers
-* Multi-currency exchange with automatic rate calculation
-* Computed real-time account balances
-* Negative balance protection
-* Dashboard kanban view for account overview
-* Pivot and graph reports for cash flow analysis
-* Role-based security (User / Manager)
-* Automatic sequence generation for all documents
+A comprehensive treasury management system that handles all financial operations
+through a single unified transaction engine with full Odoo Accounting integration.
+
+Key Features
+------------
+* **Multi-Account Management** — Cash, Bank, Card, and Wallet accounts in one place
+* **Universal Transactions** — Single model for income and expenses with auto journal entries
+* **Account-to-Account Transfers** — Same-currency transfers with balance validation
+* **Multi-Currency Exchange** — Auto-calculated rates from Odoo, manual override, fee support
+* **Real-Time Balances** — Computed live from posted journal items (account.move.line)
+* **Negative Balance Protection** — Per-account toggle to allow or prevent overdraft
+* **Kanban Dashboard** — Visual overview of all accounts grouped by type
+* **Pivot & Graph Reports** — Cash Flow and Income vs. Expense analysis
+* **Role-Based Security** — Treasury User (daily ops) and Treasury Manager (full control)
+* **Auto Sequences** — Automatic reference numbers for all documents
+* **Multi-Company** — Full multi-company support with company-based record rules
+* **Mail Tracking** — Chatter integration with field tracking on all records
+
+Accounting Integration
+----------------------
+Every treasury operation automatically creates and posts journal entries:
+* Income: Debit Account CoA → Credit Category CoA
+* Expense: Debit Category CoA → Credit Account CoA
+* Transfers & Exchanges: Paired transactions with proper counterparts
+
+Data Models: finance.account, finance.transaction, finance.transfer,
+finance.exchange, finance.category
     """,
-    'author': 'Finance Treasury',
-    'website': '',
+    'author': 'Jonibek Yorqulov',
+    'website': 'https://github.com/jonibekyorqulov',
     'license': 'LGPL-3',
     'depends': [
         'base',
@@ -54,5 +67,7 @@ Features:
     'installable': True,
     'application': True,
     'auto_install': False,
-    'images': [],
+    'images': [
+        'static/description/icon.png',
+    ],
 }
