@@ -141,7 +141,7 @@ Go to **Treasury** → **Accounts** and create your accounts:
 
 | Property | Value |
 |----------|-------|
-| **Version** | 18.0.1.0.0 |
+| **Version** | 19.0.1.0.0 |
 | **License** | LGPL-3 |
 | **Category** | Accounting/Finance |
 | **Author** | Jonibek Yorqulov |
