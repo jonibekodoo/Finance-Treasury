@@ -1,8 +1,8 @@
-# Finance Treasury — Odoo 18
+# Finance Treasury — Odoo 19
 
 **Universal Treasury Management: Cash, Bank, Card, Wallet & Financial Operations**
 
-A comprehensive treasury management module for Odoo 18 that handles all financial operations through a single unified transaction engine with full Odoo Accounting integration.
+A comprehensive treasury management module for Odoo 19 that handles all financial operations through a single unified transaction engine with full Odoo Accounting integration.
 
 ---
 
@@ -141,7 +141,7 @@ Go to **Treasury** → **Accounts** and create your accounts:
 
 | Property | Value |
 |----------|-------|
-| **Version** | 18.0.1.0.0 |
+| **Version** | 19.0.1.0.0 |
 | **License** | LGPL-3 |
 | **Category** | Accounting/Finance |
 | **Author** | Jonibek Yorqulov |
