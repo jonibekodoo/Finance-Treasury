@@ -1,4 +1,4 @@
-# Finance Treasury — Odoo 18
+# Finance Treasury — Odoo 19
 
 **Universal Treasury Management: Cash, Bank, Card, Wallet & Financial Operations**
 
