@@ -11,7 +11,7 @@
         <field name="arch" type="xml">
             <list string="Finance Categories" editable="bottom">
                 <field name="name"/>
-                <field name="type" widget="badge"
+                <field name="type" widget="selection"
                        decoration-success="type == 'income'"
                        decoration-danger="type == 'expense'"
                        decoration-info="type == 'transfer'"
