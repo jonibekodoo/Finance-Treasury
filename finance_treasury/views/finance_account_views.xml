@@ -167,7 +167,7 @@
                 <filter name="filter_wallet" string="Wallet" domain="[('type', '=', 'wallet')]"/>
                 <separator/>
                 <filter name="filter_archived" string="Archived" domain="[('active', '=', False)]"/>
-                <group expand="0" string="Group By">
+                <group>
                     <filter name="group_type" string="Type" context="{'group_by': 'type'}"/>
                     <filter name="group_currency" string="Currency" context="{'group_by': 'currency_id'}"/>
                     <filter name="group_company" string="Company" context="{'group_by': 'company_id'}"/>

@@ -281,6 +281,17 @@ class FinanceTransaction(models.Model):
 
             account_coa = account.account_account_id
             category_coa = category.account_account_id
+            company = rec.company_id
+            company_currency = company.currency_id
+
+            # Debit/credit in journal are always in company currency (e.g. UZS).
+            # When transaction is in account currency (e.g. USD), convert for balance.
+            if rec.currency_id == company_currency:
+                balance = rec.amount
+            else:
+                balance = rec.currency_id._convert(
+                    rec.amount, company_currency, company, rec.date
+                )
 
             if rec.type == 'in':
                 debit_account = account_coa
@@ -289,6 +300,34 @@ class FinanceTransaction(models.Model):
                 debit_account = category_coa
                 credit_account = account_coa
 
+            # Account-coa line uses transaction currency + amount_currency so balance shows in USD.
+            # Category-coa line uses company currency.
+            is_foreign = rec.currency_id != company_currency
+            debit_line_vals = {
+                'account_id': debit_account.id,
+                'name': rec.description or rec.name,
+                'debit': balance,
+                'credit': 0.0,
+                'currency_id': rec.currency_id.id if debit_account == account_coa else company_currency.id,
+                'partner_id': rec.partner_id.id if rec.partner_id else False,
+            }
+            credit_line_vals = {
+                'account_id': credit_account.id,
+                'name': rec.description or rec.name,
+                'debit': 0.0,
+                'credit': balance,
+                'currency_id': rec.currency_id.id if credit_account == account_coa else company_currency.id,
+                'partner_id': rec.partner_id.id if rec.partner_id else False,
+            }
+            if is_foreign:
+                if debit_account == account_coa:
+                    debit_line_vals['amount_currency'] = rec.amount
+                if credit_account == account_coa:
+                    credit_line_vals['amount_currency'] = -rec.amount
+            else:
+                debit_line_vals['amount_currency'] = rec.amount
+                credit_line_vals['amount_currency'] = -rec.amount
+
             move_vals = {
                 'date': rec.date,
                 'journal_id': account.journal_id.id,
@@ -296,22 +335,8 @@ class FinanceTransaction(models.Model):
                 'move_type': 'entry',
                 'currency_id': rec.currency_id.id,
                 'line_ids': [
-                    (0, 0, {
-                        'account_id': debit_account.id,
-                        'name': rec.description or rec.name,
-                        'debit': rec.amount,
-                        'credit': 0.0,
-                        'currency_id': rec.currency_id.id,
-                        'partner_id': rec.partner_id.id if rec.partner_id else False,
-                    }),
-                    (0, 0, {
-                        'account_id': credit_account.id,
-                        'name': rec.description or rec.name,
-                        'debit': 0.0,
-                        'credit': rec.amount,
-                        'currency_id': rec.currency_id.id,
-                        'partner_id': rec.partner_id.id if rec.partner_id else False,
-                    }),
+                    (0, 0, debit_line_vals),
+                    (0, 0, credit_line_vals),
                 ],
             }
             move = self.env['account.move'].sudo().create(move_vals)

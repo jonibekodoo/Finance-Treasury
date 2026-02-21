@@ -155,32 +155,66 @@ class FinanceAccount(models.Model):
 
     def _compute_balance(self):
         """
-        Compute the balance directly from posted journal items
-        (account.move.line) of the linked Chart of Account.
+        Compute the balance from posted journal items (account.move.line) of the
+        linked Chart of Account, in the account's currency.
 
-        balance = SUM(debit) − SUM(credit)
-        where account_id = linked CoA  AND  parent_state = 'posted'
+        - If the treasury account currency equals company currency: use
+          SUM(debit) − SUM(credit) (company-currency balance).
+        - If the treasury account currency is different (e.g. USD account, company
+          in UZS): use SUM(amount_currency) so the balance is shown in the
+          account currency without conversion.
         """
-        # Collect all CoA ids that we need balances for
-        coa_ids = [acc.account_account_id.id for acc in self if acc.account_account_id]
-        if coa_ids:
-            self.env.cr.execute("""
-                SELECT account_id,
-                       COALESCE(SUM(debit), 0) - COALESCE(SUM(credit), 0) AS balance
-                  FROM account_move_line
-                 WHERE account_id IN %s
-                   AND parent_state = 'posted'
-              GROUP BY account_id
-            """, (tuple(coa_ids),))
-            balances = dict(self.env.cr.fetchall())
-        else:
-            balances = {}
+        if not self:
+            return
 
-        for account in self:
-            if account.account_account_id:
-                account.balance = balances.get(account.account_account_id.id, 0.0)
-            else:
+        coa_ids = [acc.account_account_id.id for acc in self if acc.account_account_id]
+        if not coa_ids:
+            for account in self:
                 account.balance = 0.0
+            return
+
+        # Fetch per-account: balance in company currency and in secondary currency
+        # (account.account has company_ids in Odoo 19, so we use aml.company_id)
+        self.env.cr.execute("""
+            SELECT aml.account_id,
+                   aml.company_id,
+                   aa.currency_id AS coa_currency_id,
+                   COALESCE(SUM(aml.debit), 0) - COALESCE(SUM(aml.credit), 0) AS balance_company,
+                   COALESCE(SUM(aml.amount_currency), 0) AS balance_currency
+              FROM account_move_line aml
+              JOIN account_account aa ON aa.id = aml.account_id
+             WHERE aml.account_id IN %s
+               AND aml.parent_state = 'posted'
+             GROUP BY aml.account_id, aml.company_id, aa.currency_id
+        """, (tuple(coa_ids),))
+        rows = self.env.cr.fetchall()
+
+        # key: (account_account_id, company_id) -> (balance_company, balance_currency, coa_currency_id)
+        by_coa = {}
+        for (account_id, company_id, coa_currency_id, balance_company, balance_currency) in rows:
+            by_coa[(account_id, company_id)] = (balance_company, balance_currency, coa_currency_id)
+
+        company_currencies = {}
+        for account in self:
+            if not account.account_account_id:
+                account.balance = 0.0
+                continue
+            data = by_coa.get((account.account_account_id.id, account.company_id.id))
+            if not data:
+                account.balance = 0.0
+                continue
+            balance_company, balance_currency, coa_currency_id = data
+            company_id = account.company_id.id
+            if company_id not in company_currencies:
+                company_currencies[company_id] = self.env['res.company'].browse(company_id).currency_id
+            company_currency = company_currencies[company_id]
+            account_currency = account.currency_id
+            # Same currency: use debit/credit (company currency) as is
+            if company_currency == account_currency or not coa_currency_id:
+                account.balance = balance_company
+            else:
+                # Foreign currency: use amount_currency so balance is in account currency
+                account.balance = balance_currency
 
     def _compute_transaction_count(self):
         """Count the number of transactions for this account."""

@@ -109,7 +109,7 @@
                 <separator/>
                 <filter name="filter_draft" string="Draft" domain="[('state', '=', 'draft')]"/>
                 <filter name="filter_confirmed" string="Confirmed" domain="[('state', '=', 'confirmed')]"/>
-                <group expand="0" string="Group By">
+                <group>
                     <filter name="group_from" string="From Account"
                             context="{'group_by': 'from_account_id'}"/>
                     <filter name="group_to" string="To Account"

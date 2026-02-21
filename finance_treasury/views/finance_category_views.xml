@@ -57,7 +57,7 @@
                 <filter name="filter_expense" string="Expense" domain="[('type', '=', 'expense')]"/>
                 <filter name="filter_transfer" string="Transfer" domain="[('type', '=', 'transfer')]"/>
                 <filter name="filter_exchange" string="Exchange" domain="[('type', '=', 'exchange')]"/>
-                <group expand="0" string="Group By">
+                <group>
                     <filter name="group_type" string="Type" context="{'group_by': 'type'}"/>
                 </group>
             </search>
