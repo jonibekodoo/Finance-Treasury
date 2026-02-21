@@ -38,7 +38,7 @@
     <menuitem id="menu_finance_accounts"
               name="Accounts"
               parent="menu_finance_treasury_root"
-              sequence="20"/>
+              sequence="5"/>
 
     <menuitem id="menu_finance_account"
               name="All Accounts"
